@@ -39,6 +39,7 @@ const MAX_AVATAR_SIZE = 1024 * 1024;
 enum AccountPickerTab {
   LogIn = "logIn",
   SignUp = "signUp",
+  ATProto = "atProto",
 }
 
 type AccountTokenToLoginStatus = null | "valid" | "malformed" | "not-found";
@@ -81,6 +82,8 @@ export const AccountPicker = ({
     ? automergeUrlToAccountToken(currentAccount.handle.url, name)
     : null;
 
+  const [atprotoHandle, setAtprotoHandle] = useState<string>("");
+
   // initialize form values if already logged in
   useEffect(() => {
     if (self && self.type === "registered" && name === "") {
@@ -88,7 +91,7 @@ export const AccountPicker = ({
     }
   }, [self]);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     switch (activeTab) {
       case AccountPickerTab.LogIn:
         currentAccount.logIn(accountAutomergeUrlToLogin);
@@ -96,6 +99,14 @@ export const AccountPicker = ({
 
       case AccountPickerTab.SignUp:
         currentAccount.signUp({ name, avatar });
+        break;
+
+      case AccountPickerTab.ATProto:
+        try {
+          await currentAccount.loginWithAtProto(atprotoHandle);
+        } catch (error) {
+          console.error('ATProto login failed:', error);
+        }
         break;
     }
   };
@@ -133,7 +144,8 @@ export const AccountPicker = ({
     (activeTab === AccountPickerTab.LogIn &&
       accountTokenToLogin &&
       accountToLogin?.contactUrl &&
-      contactToLogin?.type === "registered");
+      contactToLogin?.type === "registered") ||
+    (activeTab === AccountPickerTab.ATProto && atprotoHandle);
 
   const isLoggedIn = self?.type === "registered";
 
@@ -149,14 +161,29 @@ export const AccountPicker = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader className="items-center">
           {isLoggedIn ? (
-            <ContactAvatar
-              size="default"
-              url={currentAccount?.contactHandle.url}
-              name={name}
-              avatar={avatar}
-            />
+            <div className="flex flex-col items-center gap-2">
+              <ContactAvatar
+                size="default"
+                url={currentAccount?.contactHandle.url}
+                name={name}
+                avatar={avatar}
+              />
+              {self?.atprotoProfile && (
+                <div className="text-sm text-blue-600">
+                  Connected to @{self.atprotoProfile.handle}
+                </div>
+              )}
+            </div>
           ) : activeTab === "signUp" ? (
             <ContactAvatar name={name} avatar={avatar} size={"lg"} />
+          ) : activeTab === "atProto" ? (
+            <div className="p-4">
+              <img
+                src="/bluesky-logo.svg"
+                alt="Bluesky"
+                className="w-16 h-16"
+              />
+            </div>
           ) : (
             <ContactAvatar url={accountToLogin?.contactUrl} size="lg" />
           )}
@@ -169,9 +196,10 @@ export const AccountPicker = ({
             onValueChange={(tab) => setActiveTab(tab as AccountPickerTab)}
             value={activeTab}
           >
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value={AccountPickerTab.SignUp}>Sign up</TabsTrigger>
               <TabsTrigger value={AccountPickerTab.LogIn}>Log in</TabsTrigger>
+              <TabsTrigger value={AccountPickerTab.ATProto}>Bluesky</TabsTrigger>
             </TabsList>
             <TabsContent value={AccountPickerTab.SignUp}>
               <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
@@ -199,11 +227,10 @@ export const AccountPicker = ({
 
                 <div className="flex gap-1.5">
                   <Input
-                    className={`${
-                      accountTokenToLoginStatus === "valid"
-                        ? "bg-green-100"
-                        : ""
-                    }`}
+                    className={`${accountTokenToLoginStatus === "valid"
+                      ? "bg-green-100"
+                      : ""
+                      }`}
                     id="accountUrl"
                     value={accountTokenToLogin}
                     onChange={(evt) => {
@@ -234,6 +261,21 @@ export const AccountPicker = ({
                 <p className="text-gray-500 text-justify pb-2 text-sm mb-2">
                   You can find your token by accessing the account dialog on any
                   device where you are currently logged in.
+                </p>
+              </form>
+            </TabsContent>
+            <TabsContent value={AccountPickerTab.ATProto}>
+              <form className="grid w-full max-w-sm items-center gap-1.5 py-4">
+                <Label htmlFor="atprotoHandle">Bluesky Handle</Label>
+                <Input
+                  id="atprotoHandle"
+                  value={atprotoHandle}
+                  onChange={(evt) => setAtprotoHandle(evt.target.value)}
+                  placeholder="handle.bsky.social"
+                />
+
+                <p className="text-gray-500 text-justify pb-2 text-sm mt-4">
+                  Connect with your Bluesky account to sync your profile and enable cross-device collaboration.
                 </p>
               </form>
             </TabsContent>
@@ -323,12 +365,13 @@ export const AccountPicker = ({
               {isLoggedIn
                 ? "Save"
                 : activeTab === "signUp"
-                ? "Sign up"
-                : `Log in${
-                    contactToLogin && contactToLogin.type === "registered"
+                  ? "Sign up"
+                  : activeTab === "atProto"
+                    ? "Connect"
+                    : `Log in${contactToLogin && contactToLogin.type === "registered"
                       ? ` as ${contactToLogin.name}`
                       : ""
-                  }`}
+                    }`}
             </Button>
           </DialogTrigger>
         </DialogFooter>

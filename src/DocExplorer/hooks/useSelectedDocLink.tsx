@@ -77,12 +77,14 @@ const parseUrl = (url: URL): Omit<DocLink, "name"> | null => {
   const docUrl = stringifyAutomergeUrl(docId as DocumentId);
 
   if (!isValidAutomergeUrl(docUrl)) {
-    alert(`Invalid doc id in URL: ${docUrl}`);
+    // TODO: fix auth callback
+    // alert(`Invalid doc id in URL: ${docUrl}`);
     return null;
   }
 
   if (!isDocType(docType)) {
-    alert(`Invalid doc type in URL: ${docType}`);
+    // TODO: fix auth callback
+    // alert(`Invalid doc type in URL: ${docType}`);
     return null;
   }
 
@@ -127,6 +129,7 @@ export const useSelectedDocLink = ({
 } => {
   // parse the current URL
   const currentUrl = useCurrentUrl();
+
   const urlParams = useMemo(() => parseUrl(currentUrl), [currentUrl]);
 
   // NOTE: this should not be externally exposed, it's just a way to store

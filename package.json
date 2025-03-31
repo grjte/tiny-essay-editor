@@ -17,11 +17,13 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@atproto/api": "^0.14.16",
+    "@atproto/oauth-client-browser": "^0.3.12",
     "@automerge/automerge": "^2.1.9",
     "@automerge/automerge-codemirror": "^0.0.11",
     "@automerge/automerge-repo": "^1.1.12",
-    "@automerge/automerge-repo-network-messagechannel": "^1.1.12",
     "@automerge/automerge-repo-network-broadcastchannel": "^1.1.12",
+    "@automerge/automerge-repo-network-messagechannel": "^1.1.12",
     "@automerge/automerge-repo-network-websocket": "^1.1.12",
     "@automerge/automerge-repo-react-hooks": "^1.1.12",
     "@automerge/automerge-repo-storage-indexeddb": "^1.1.12",
@@ -58,6 +60,7 @@
     "react": "^18.2.0",
     "react-arborist": "^3.3.1",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^7.4.1",
     "react-usestateref": "^1.0.8",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
@@ -91,5 +94,6 @@
   },
   "resolutions": {
     "@automerge/automerge-wasm": "file:./src/vendor/automerge-wasm"
-  }
+  },
+  "packageManager": "yarn@3.4.1+sha512.a333bf9c2557d71f5ba87dd1446cde24bb9c35301ec29dd2baba577b3f9d1ab61348b66a1324de9088c40a996c5b9203794da8bf14cab9fae6a6eccc00cb8078"
 }

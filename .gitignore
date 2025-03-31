@@ -13,6 +13,8 @@ dist-ssr
 tsc
 *.local
 .env
+.yarn
+.yarnrc.yml
 
 # Editor directories and files
 .vscode/*

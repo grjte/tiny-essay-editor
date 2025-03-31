@@ -8,6 +8,7 @@ import {
   SaveIcon,
   ShareIcon,
   Trash2Icon,
+  Send,
 } from "lucide-react";
 import { useRepo } from "@automerge/automerge-repo-react-hooks";
 import { SyncIndicator } from "./SyncIndicator";
@@ -28,6 +29,7 @@ import { DatatypeId, datatypes } from "../../datatypes";
 import { asMarkdownFile } from "@/tee/datatype";
 import { MarkdownDoc } from "@/tee/schema";
 import { DocHandle } from "@automerge/automerge-repo";
+import { useCurrentAccount, useCurrentAccountDoc } from "../account";
 
 type TopbarProps = {
   showSidebar: boolean;
@@ -50,6 +52,9 @@ export const Topbar: React.FC<TopbarProps> = ({
   removeDocLink,
 }) => {
   const repo = useRepo();
+  const [accountDoc] = useCurrentAccountDoc();
+  const account = useCurrentAccount();
+  const isAtProtoConnected = accountDoc?.atprotoHandle !== undefined;
 
   const selectedDocUrl = selectedDocLink?.url;
   const selectedDocName = selectedDocLink?.name;
@@ -85,6 +90,39 @@ export const Topbar: React.FC<TopbarProps> = ({
       },
     ]);
   }, [selectedDocUrl, selectedDoc]);
+
+  const handlePublishToPDS = useCallback(async () => {
+    if (!isAtProtoConnected || !account) {
+      // Open AccountPicker to Bluesky tab
+      const accountPicker = document.querySelector('[data-testid="account-picker-trigger"]');
+      if (accountPicker) {
+        (accountPicker as HTMLElement).click();
+        // Set tab to ATProto
+        const atprotoTab = document.querySelector('[data-value="atProto"]');
+        if (atprotoTab) {
+          (atprotoTab as HTMLElement).click();
+        }
+      }
+      return;
+    }
+
+    try {
+      if (selectedDocType !== "essay") {
+        throw new Error("Only essays can be published to Bluesky");
+      }
+
+      const doc = selectedDoc as MarkdownDoc;
+      await account.publishToPDS(selectedDocHandle.url, {
+        content: doc.content,
+        title: selectedDocName
+      });
+
+      alert("Successfully published to Bluesky!");
+    } catch (error) {
+      console.error("Failed to publish:", error);
+      alert("Failed to publish to Bluesky. Please try again.");
+    }
+  }, [isAtProtoConnected, account, selectedDoc, selectedDocType, selectedDocName, selectedDocHandle]);
 
   return (
     <div className="h-10 bg-gray-100 flex items-center flex-shrink-0 border-b border-gray-300">
@@ -127,6 +165,13 @@ export const Topbar: React.FC<TopbarProps> = ({
               />{" "}
               Copy share URL
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={handlePublishToPDS}>
+              <Send
+                className="inline-block text-gray-500 mr-2"
+                size={14}
+              />{" "}
+              Publish to atproto PDS
+            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={async () => {
                 const newHandle = repo.clone(selectedDocHandle);
@@ -143,7 +188,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
                 const folderHandle = repo.find<FolderDoc>(
                   selectedDocLink.folderPath[
-                    selectedDocLink.folderPath.length - 1
+                  selectedDocLink.folderPath.length - 1
                   ]
                 );
                 await folderHandle.whenReady();

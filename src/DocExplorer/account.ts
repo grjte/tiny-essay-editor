@@ -15,9 +15,16 @@ import { ChangeFn } from "@automerge/automerge/next";
 import { FolderDoc, FolderDocWithChildren } from "../folders/datatype";
 import { useFolderDocWithChildren } from "../folders/useFolderDocWithChildren";
 
+import { Agent } from "@atproto/api";
+import { BrowserOAuthClient, OAuthSession } from "@atproto/oauth-client-browser";
+
 export interface AccountDoc {
   contactUrl: AutomergeUrl;
   rootFolderUrl: AutomergeUrl;
+  atprotoDid?: string;
+  atprotoHandle?: string;
+  pssJwt?: string;
+  lastOnlineSync?: number;
 }
 
 export interface AnonymousContactDoc {
@@ -28,6 +35,11 @@ export interface RegisteredContactDoc {
   type: "registered";
   name: string;
   avatarUrl?: AutomergeUrl;
+  atprotoProfile?: {
+    displayName: string;
+    handle: string;
+    avatar?: string;
+  };
 }
 
 export type ContactDoc = AnonymousContactDoc | RegisteredContactDoc;
@@ -42,9 +54,11 @@ interface ContactProps {
 }
 
 class Account extends EventEmitter<AccountEvents> {
+  #client: BrowserOAuthClient;
   #repo: Repo;
   #handle: DocHandle<AccountDoc>;
   #contactHandle: DocHandle<ContactDoc>;
+  #session?: OAuthSession;
 
   constructor(
     repo: Repo,
@@ -77,6 +91,40 @@ class Account extends EventEmitter<AccountEvents> {
           }
         });
       }
+    });
+
+    // Initialize ATProto client and handle OAuth flow
+    const client = new BrowserOAuthClient({
+      clientMetadata: {
+        "client_id": `${import.meta.env.VITE_APP_URL}/client-metadata.json`,
+        "client_name": import.meta.env.VITE_APP_NAME,
+        "client_uri": import.meta.env.VITE_APP_URL,
+        "redirect_uris": [
+          // Use a specific path for the OAuth redirect
+          `${import.meta.env.VITE_APP_URL}/auth/callback`
+        ],
+        "scope": "atproto transition:generic",
+        "grant_types": [
+          "authorization_code",
+          "refresh_token"
+        ],
+        "response_types": [
+          "code"
+        ],
+        "token_endpoint_auth_method": "none",
+        "application_type": "web",
+        "dpop_bound_access_tokens": true
+      },
+      handleResolver: import.meta.env.VITE_ATPROTO_HANDLE_RESOLVER_URL,
+    });
+
+    // Initialize the OAuth client
+    client.init().then((result) => {
+      this.#client = client;
+      this.#session = result.session;
+      // TODO: handle token expiry/refresh
+    }).catch((error) => {
+      console.error("Failed to initialize OAuth client", error);
     });
   }
 
@@ -126,6 +174,113 @@ class Account extends EventEmitter<AccountEvents> {
 
   get contactHandle() {
     return this.#contactHandle;
+  }
+
+  async loginWithAtProto(handleOrDid: string) {
+    try {
+      // Store current account URL in state
+      const currentAccountUrl = this.#handle.url;
+
+      // Handle OAuth flow
+      const session = await this.#client.signInPopup(handleOrDid);
+      this.#session = session;
+      window.location.href = currentAccountUrl;
+
+      // No need to manually restore the account URL as it's handled by the state parameter
+      const agent = new Agent(session);
+      const profile = await agent.getProfile({ actor: session.did });
+
+      // Update account with ATProto credentials
+      this.#handle.change((account) => {
+        account.atprotoDid = session.did;
+        account.atprotoHandle = profile.data.handle;
+      });
+
+      // Update contact info with ATProto profile
+      this.#contactHandle.change((contact: RegisteredContactDoc) => {
+        contact.type = "registered";
+        contact.name = profile.data.displayName || profile.data.handle;
+        contact.atprotoProfile = {
+          displayName: profile.data.displayName,
+          handle: profile.data.handle,
+          avatar: profile.data.avatar,
+        };
+      });
+
+      await this.connectToPSS();
+    } catch (error) {
+      console.error('ATProto login failed:', error);
+      throw error;
+    }
+  }
+
+  async connectToPSS() {
+    // TODO: connect to PSS if it exists
+    console.log("connectToPSS");
+  }
+
+  async syncWithPSS() {
+    if (!this.#handle.docSync().pssJwt) {
+      return; // Not connected to PSS
+    }
+
+    try {
+      // Sync logic here - could involve:
+      // 1. Syncing profile changes
+      // 2. Syncing documents to ATProto if desired
+      // 3. Update lastOnlineSync timestamp
+
+      // TODO: sync with PSS
+
+      // this.#handle.change((account) => {
+      //   account.lastOnlineSync = Date.now();
+      // });
+    } catch (error) {
+      // Handle expired tokens, network errors, etc.
+      // TODO: refresh tokens if necessary
+      // if (isTokenExpiredError(error)) {
+      //   // Clear ATProto credentials and require re-auth
+      //   this.#handle.change((account) => {
+      //     account.atprotoDid = undefined;
+      //     account.atprotoHandle = undefined;
+      //     account.pssJwt = undefined;
+      //   });
+      // }
+    }
+  }
+
+  async publishToPDS(docUrl: AutomergeUrl, doc: { content: string, title: string }) {
+    if (!this.#session) {
+      throw new Error("Not connected to Bluesky");
+    }
+
+    try {
+
+      const agent = new Agent(this.#session);
+      const entryCreate = {
+        $type: 'com.atproto.repo.applyWrites#create',
+        // TODO: create lexicon for collection
+        collection: 'xyz.groundmist.notebook.essay',
+        // TODO: use a better rkey
+        rkey: docUrl,
+        value: {
+          text: doc.content,
+          title: doc.title,
+          createdAt: new Date().toISOString(),
+        },
+      }
+
+      let writes = [entryCreate as any];
+
+      await agent.com.atproto.repo.applyWrites({
+        repo: this.#session.did,
+        writes,
+      });
+      // TODO: update local docs to mark as published
+    } catch (error) {
+      console.error('Failed to publish to PDS', error);
+      throw error;
+    }
   }
 }
 
@@ -306,4 +461,35 @@ export function accountTokenToAutomergeUrl(
     return undefined;
   }
   return url;
+}
+export function useAtProtoSync() {
+  const account = useCurrentAccount();
+  const [accountDoc] = useCurrentAccountDoc();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Attempt to sync when coming online
+  useEffect(() => {
+    if (isOnline && account && accountDoc?.atprotoDid) {
+      account.syncWithPSS();
+    }
+  }, [isOnline, account, accountDoc?.atprotoDid]);
+
+  return {
+    isOnline,
+    isAtProtoConnected: !!accountDoc?.atprotoDid,
+    lastSync: accountDoc?.lastOnlineSync,
+  };
 }
