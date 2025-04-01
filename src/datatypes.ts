@@ -16,7 +16,8 @@ export interface DataType {
 
 export const datatypes: Record<string, DataType> = {
   essay: EssayDatatype,
-  tldraw: TLDrawDatatype,
+  // disable for now
+  // tldraw: TLDrawDatatype,
   folder: FolderDatatype,
 } as const;
 
