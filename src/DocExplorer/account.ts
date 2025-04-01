@@ -120,7 +120,9 @@ class Account extends EventEmitter<AccountEvents> {
     // Initialize the OAuth client
     client.init().then((result) => {
       this.#client = client;
-      this.#session = result.session;
+      if (result?.session) {
+        this.#session = result.session;
+      }
       // TODO: handle token expiry/refresh
     }).catch((error) => {
       console.error("Failed to initialize OAuth client", error);
