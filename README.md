@@ -1,6 +1,6 @@
-# tiny essay editor
+# groundmist essay editor
 
-This is a simple collaborative Markdown editor built in React, with inline format preview and inline commenting.
+This is a simple collaborative Markdown editor built in React, with inline format preview and inline commenting, based on the Ink & Switch "tiny essay editor". This fork enables publishing essays to a public PDS on atproto.
 
 It's built on [automerge](https://github.com/automerge/automerge) and [automerge-repo](https://github.com/automerge/automerge-repo) for CRDT-based storage and sync. It uses [Codemirror](https://codemirror.net/) for markdown editing UI, and [automerge-codemirror](https://github.com/automerge/automerge-codemirror) to connect to Codemirror.
 

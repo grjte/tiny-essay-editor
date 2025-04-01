@@ -326,9 +326,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@automerge/automerge-wasm@file:./src/vendor/automerge-wasm::locator=tiny-essay-editor%40workspace%3A.":
+"@automerge/automerge-wasm@file:./src/vendor/automerge-wasm::locator=groundmist-essay-editor%40workspace%3A.":
   version: 0.3.0
-  resolution: "@automerge/automerge-wasm@file:./src/vendor/automerge-wasm#./src/vendor/automerge-wasm::hash=89fe12&locator=tiny-essay-editor%40workspace%3A."
+  resolution: "@automerge/automerge-wasm@file:./src/vendor/automerge-wasm#./src/vendor/automerge-wasm::hash=89fe12&locator=groundmist-essay-editor%40workspace%3A."
   checksum: b82890d78520d74df992336361adaa9dedf1c1551c55866b3d10432e29619e7e2fe25084304a8ea4ac10066f9a08aa79e857c43f8fbaeaa1f93c255952f3b8a4
   languageName: node
   linkType: hard
@@ -5633,6 +5633,85 @@ __metadata:
   languageName: node
   linkType: hard
 
+"groundmist-essay-editor@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "groundmist-essay-editor@workspace:."
+  dependencies:
+    "@atproto/api": ^0.14.16
+    "@atproto/oauth-client-browser": ^0.3.12
+    "@automerge/automerge": ^2.1.9
+    "@automerge/automerge-codemirror": ^0.0.11
+    "@automerge/automerge-repo": ^1.1.12
+    "@automerge/automerge-repo-network-broadcastchannel": ^1.1.12
+    "@automerge/automerge-repo-network-messagechannel": ^1.1.12
+    "@automerge/automerge-repo-network-websocket": ^1.1.12
+    "@automerge/automerge-repo-react-hooks": ^1.1.12
+    "@automerge/automerge-repo-storage-indexeddb": ^1.1.12
+    "@codemirror/lang-javascript": ^6.2.1
+    "@codemirror/lang-markdown": ^6.2.1
+    "@codemirror/language": ^6.9.1
+    "@codemirror/language-data": ^6.3.1
+    "@codemirror/view": ^6.21.3
+    "@lezer/highlight": ^1.1.6
+    "@radix-ui/react-avatar": ^1.0.4
+    "@radix-ui/react-context-menu": ^2.1.5
+    "@radix-ui/react-dialog": ^1.0.5
+    "@radix-ui/react-dropdown-menu": ^2.0.6
+    "@radix-ui/react-label": ^2.0.2
+    "@radix-ui/react-popover": ^1.0.7
+    "@radix-ui/react-progress": ^1.0.3
+    "@radix-ui/react-slot": ^1.0.2
+    "@radix-ui/react-tabs": ^1.0.4
+    "@radix-ui/react-tooltip": ^1.0.7
+    "@tailwindcss/container-queries": ^0.1.1
+    "@testing-library/react": ^15.0.2
+    "@tldraw/tldraw": 2.0.0-alpha.17
+    "@types/lodash": ^4.14.199
+    "@types/node": ^20.8.2
+    "@types/react": ^18.2.15
+    "@types/react-dom": ^18.2.7
+    "@typescript-eslint/eslint-plugin": ^6.0.0
+    "@typescript-eslint/parser": ^6.0.0
+    "@vitejs/plugin-react": ^4.0.3
+    "@xstate/react": ^4.1.1
+    automerge-tldraw: 0.1.5
+    autoprefixer: ^10.4.16
+    class-variance-authority: ^0.7.0
+    clsx: ^2.0.0
+    cmdk: ^0.2.0
+    codemirror: ^6.0.1
+    eslint: ^8.45.0
+    eslint-plugin-react-hooks: ^4.6.0
+    eslint-plugin-react-refresh: ^0.4.3
+    eventemitter3: ^5.0.1
+    jsdom: ^22.1.0
+    lodash: ^4.17.21
+    lorem-ipsum: ^2.0.8
+    lucide-react: ^0.284.0
+    openai: ^4.11.0
+    pnpm: ^8.14.1
+    postcss: ^8.4.31
+    query-string: ^8.1.0
+    react: ^18.2.0
+    react-arborist: ^3.3.1
+    react-dom: ^18.2.0
+    react-router-dom: ^7.4.1
+    react-usestateref: ^1.0.8
+    tailwind-merge: ^1.14.0
+    tailwindcss: ^3.3.3
+    tailwindcss-animate: ^1.0.7
+    tsc-alias: ^1.8.8
+    typescript: ^5.0.2
+    use-resize-observer: ^9.1.0
+    uuid: ^9.0.1
+    vite: ^4.4.5
+    vite-plugin-top-level-await: ^1.3.1
+    vite-plugin-wasm: ^3.2.2
+    vitest: ^0.34.6
+    xstate: ^5.9.1
+  languageName: unknown
+  linkType: soft
+
 "has-flag@npm:^3.0.0":
   version: 3.0.0
   resolution: "has-flag@npm:3.0.0"
@@ -7825,85 +7904,6 @@ __metadata:
   checksum: 84e1b804bfec49f3531215f17b4a6e50fd4397b5f7c1bccc427b9c656e1ecfb13ea79d899930184f78bc2f57285c54d9a50a590c8868f4f0cef5c1d9f898b05e
   languageName: node
   linkType: hard
-
-"tiny-essay-editor@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "tiny-essay-editor@workspace:."
-  dependencies:
-    "@atproto/api": ^0.14.16
-    "@atproto/oauth-client-browser": ^0.3.12
-    "@automerge/automerge": ^2.1.9
-    "@automerge/automerge-codemirror": ^0.0.11
-    "@automerge/automerge-repo": ^1.1.12
-    "@automerge/automerge-repo-network-broadcastchannel": ^1.1.12
-    "@automerge/automerge-repo-network-messagechannel": ^1.1.12
-    "@automerge/automerge-repo-network-websocket": ^1.1.12
-    "@automerge/automerge-repo-react-hooks": ^1.1.12
-    "@automerge/automerge-repo-storage-indexeddb": ^1.1.12
-    "@codemirror/lang-javascript": ^6.2.1
-    "@codemirror/lang-markdown": ^6.2.1
-    "@codemirror/language": ^6.9.1
-    "@codemirror/language-data": ^6.3.1
-    "@codemirror/view": ^6.21.3
-    "@lezer/highlight": ^1.1.6
-    "@radix-ui/react-avatar": ^1.0.4
-    "@radix-ui/react-context-menu": ^2.1.5
-    "@radix-ui/react-dialog": ^1.0.5
-    "@radix-ui/react-dropdown-menu": ^2.0.6
-    "@radix-ui/react-label": ^2.0.2
-    "@radix-ui/react-popover": ^1.0.7
-    "@radix-ui/react-progress": ^1.0.3
-    "@radix-ui/react-slot": ^1.0.2
-    "@radix-ui/react-tabs": ^1.0.4
-    "@radix-ui/react-tooltip": ^1.0.7
-    "@tailwindcss/container-queries": ^0.1.1
-    "@testing-library/react": ^15.0.2
-    "@tldraw/tldraw": 2.0.0-alpha.17
-    "@types/lodash": ^4.14.199
-    "@types/node": ^20.8.2
-    "@types/react": ^18.2.15
-    "@types/react-dom": ^18.2.7
-    "@typescript-eslint/eslint-plugin": ^6.0.0
-    "@typescript-eslint/parser": ^6.0.0
-    "@vitejs/plugin-react": ^4.0.3
-    "@xstate/react": ^4.1.1
-    automerge-tldraw: 0.1.5
-    autoprefixer: ^10.4.16
-    class-variance-authority: ^0.7.0
-    clsx: ^2.0.0
-    cmdk: ^0.2.0
-    codemirror: ^6.0.1
-    eslint: ^8.45.0
-    eslint-plugin-react-hooks: ^4.6.0
-    eslint-plugin-react-refresh: ^0.4.3
-    eventemitter3: ^5.0.1
-    jsdom: ^22.1.0
-    lodash: ^4.17.21
-    lorem-ipsum: ^2.0.8
-    lucide-react: ^0.284.0
-    openai: ^4.11.0
-    pnpm: ^8.14.1
-    postcss: ^8.4.31
-    query-string: ^8.1.0
-    react: ^18.2.0
-    react-arborist: ^3.3.1
-    react-dom: ^18.2.0
-    react-router-dom: ^7.4.1
-    react-usestateref: ^1.0.8
-    tailwind-merge: ^1.14.0
-    tailwindcss: ^3.3.3
-    tailwindcss-animate: ^1.0.7
-    tsc-alias: ^1.8.8
-    typescript: ^5.0.2
-    use-resize-observer: ^9.1.0
-    uuid: ^9.0.1
-    vite: ^4.4.5
-    vite-plugin-top-level-await: ^1.3.1
-    vite-plugin-wasm: ^3.2.2
-    vitest: ^0.34.6
-    xstate: ^5.9.1
-  languageName: unknown
-  linkType: soft
 
 "tiny-typed-emitter@npm:^2.1.0":
   version: 2.1.0
