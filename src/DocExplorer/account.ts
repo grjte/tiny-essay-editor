@@ -100,8 +100,7 @@ class Account extends EventEmitter<AccountEvents> {
         "client_name": import.meta.env.VITE_APP_NAME,
         "client_uri": import.meta.env.VITE_APP_URL,
         "redirect_uris": [
-          // Use a specific path for the OAuth redirect
-          `${import.meta.env.VITE_APP_URL}/auth/callback`
+          import.meta.env.VITE_APP_URL
         ],
         "scope": "atproto transition:generic",
         "grant_types": [

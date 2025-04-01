@@ -27,3 +27,4 @@ tsc
 *.sln
 *.sw?
 .env
+.vercel
