@@ -17,6 +17,7 @@ import { useFolderDocWithChildren } from "../folders/useFolderDocWithChildren";
 
 import { Agent } from "@atproto/api";
 import { BrowserOAuthClient, OAuthSession } from "@atproto/oauth-client-browser";
+import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
 
 export interface AccountDoc {
   contactUrl: AutomergeUrl;
@@ -122,6 +123,7 @@ class Account extends EventEmitter<AccountEvents> {
       this.#client = client;
       if (result?.session) {
         this.#session = result.session;
+        this.connectToPSS();
       }
       // TODO: handle token expiry/refresh
     }).catch((error) => {
@@ -216,37 +218,48 @@ class Account extends EventEmitter<AccountEvents> {
   }
 
   async connectToPSS() {
-    // TODO: connect to PSS if it exists
-    console.log("connectToPSS");
-  }
-
-  async syncWithPSS() {
-    if (!this.#handle.docSync().pssJwt) {
-      return; // Not connected to PSS
-    }
-
     try {
-      // Sync logic here - could involve:
-      // 1. Syncing profile changes
-      // 2. Syncing documents to ATProto if desired
-      // 3. Update lastOnlineSync timestamp
+      const agent = new Agent(this.#session);
+      const pdsResponse = await agent.com.atproto.repo.getRecord({
+        repo: this.#session.did,
+        collection: "xyz.groundmist.sync",
+        rkey: this.#session.did,
+      })
+      if (pdsResponse.success) {
+        const pssHost = (pdsResponse.data.value as {
+          host: string
+        }).host;
+        console.log('PSS host:', pssHost);
 
-      // TODO: sync with PSS
+        if (pssHost) {
+          // Use the fetchHandler to make an authenticated request to the sync server to get a token
+          const pssResponse = await this.#session.fetchHandler(`https://${pssHost}/authenticate`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              lexiconAuthorityDomain: "xyz.groundmist.notebook.essay",
+            }),
+          });
+          const data = await pssResponse.json();
+          console.log('Server response:', data);
+          // Update account with PSS token
+          this.#handle.change((account) => {
+            account.pssJwt = data.token;
+          });
 
-      // this.#handle.change((account) => {
-      //   account.lastOnlineSync = Date.now();
-      // });
+          // connect to the sync server using the access token
+          console.log(this.#repo)
+          console.log("Connecting to sync server...");
+          this.#repo.networkSubsystem.addNetworkAdapter(
+            new BrowserWebSocketClientAdapter(`wss://${pssHost}?token=${data.token}`)
+          );
+          console.log("Connected to sync server");
+        }
+      }
     } catch (error) {
-      // Handle expired tokens, network errors, etc.
-      // TODO: refresh tokens if necessary
-      // if (isTokenExpiredError(error)) {
-      //   // Clear ATProto credentials and require re-auth
-      //   this.#handle.change((account) => {
-      //     account.atprotoDid = undefined;
-      //     account.atprotoHandle = undefined;
-      //     account.pssJwt = undefined;
-      //   });
-      // }
+      // silently fail if the sync server is not found
     }
   }
 
@@ -462,35 +475,4 @@ export function accountTokenToAutomergeUrl(
     return undefined;
   }
   return url;
-}
-export function useAtProtoSync() {
-  const account = useCurrentAccount();
-  const [accountDoc] = useCurrentAccountDoc();
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  // Attempt to sync when coming online
-  useEffect(() => {
-    if (isOnline && account && accountDoc?.atprotoDid) {
-      account.syncWithPSS();
-    }
-  }, [isOnline, account, accountDoc?.atprotoDid]);
-
-  return {
-    isOnline,
-    isAtProtoConnected: !!accountDoc?.atprotoDid,
-    lastSync: accountDoc?.lastOnlineSync,
-  };
 }
