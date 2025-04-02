@@ -240,14 +240,43 @@ class Account extends EventEmitter<AccountEvents> {
             },
             body: JSON.stringify({
               lexiconAuthorityDomain: "xyz.groundmist.notebook.essay",
+              rootDocUrl: this.#handle.url
             }),
           });
           const data = await pssResponse.json();
           console.log('Server response:', data);
-          // Update account with PSS token
-          this.#handle.change((account) => {
-            account.pssJwt = data.token;
-          });
+
+          if (data.rootDocUrl !== this.#handle.url) {
+            const accountDoc = await this.#handle.doc();
+            const contactHandle = this.#repo.find<RegisteredContactDoc>(accountDoc.contactUrl);
+            const contactDoc = await contactHandle.doc();
+
+            // TODO: handle merging the rootFolderUrls from the 2 accounts
+            // replace the account for this user with the new one
+            console.log("Root doc URL mismatch, logging out and logging in again...");
+            this.logOut();
+            this.logIn(data.rootDocUrl);
+
+            // Update account with ATProto credentials and PSS token
+            console.log("Updating account with ATProto credentials");
+            this.#handle.change((account) => {
+              account.atprotoDid = accountDoc.atprotoDid;
+              account.atprotoHandle = accountDoc.atprotoHandle;
+              account.pssJwt = data.token;
+            });
+
+            // Update contact info with ATProto profile
+            this.#contactHandle.change((contact: RegisteredContactDoc) => {
+              contact.type = "registered";
+              contact.name = contactDoc.name;
+              contact.atprotoProfile = contactDoc.atprotoProfile;
+            });
+          } else {
+            // Update account with PSS token
+            this.#handle.change((account) => {
+              account.pssJwt = data.token;
+            });
+          }
 
           // connect to the sync server using the access token
           console.log(this.#repo)
