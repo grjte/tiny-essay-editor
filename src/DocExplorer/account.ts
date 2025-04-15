@@ -12,7 +12,7 @@ import { useEffect, useReducer, useState } from "react";
 import { uploadFile } from "./utils";
 import { ChangeFn } from "@automerge/automerge/next";
 
-import { FolderDoc, FolderDocWithChildren } from "../folders/datatype";
+import { FolderDoc } from "../folders/datatype";
 import { useFolderDocWithChildren } from "../folders/useFolderDocWithChildren";
 
 import { Agent, } from "@atproto/api";
@@ -101,7 +101,7 @@ class Account extends EventEmitter<AccountEvents> {
         "client_name": import.meta.env.VITE_APP_NAME,
         "client_uri": import.meta.env.VITE_APP_URL,
         "redirect_uris": [
-          import.meta.env.VITE_APP_URL
+          `${import.meta.env.VITE_APP_URL}/oauth/callback`
         ],
         "scope": "atproto transition:generic",
         "grant_types": [
@@ -121,7 +121,17 @@ class Account extends EventEmitter<AccountEvents> {
     // Initialize the OAuth client
     client.init().then((result) => {
       this.#client = client;
-      if (result?.session) {
+      if (document.location.pathname === '/oauth/callback') {
+        if (result?.session) {
+          this.#session = result.session;
+          this.handleAuthCallback((result as {
+            session: OAuthSession;
+            state: string | null;
+          }).state || undefined);
+        } else {
+          console.error("No session returned from auth callback");
+        }
+      } else if (result?.session) {
         this.#session = result.session;
         this.connectToPSS();
       }
@@ -181,21 +191,27 @@ class Account extends EventEmitter<AccountEvents> {
 
   async loginWithAtProto(handleOrDid: string) {
     try {
-      // Store current account URL in state
-      const currentAccountUrl = this.#handle.url;
+      // Store current doc url if there is one
+      let currentDocUrl = document.location.hash.slice(1);
 
       // Handle OAuth flow
-      const session = await this.#client.signInPopup(handleOrDid);
-      this.#session = session;
-      window.location.href = currentAccountUrl;
+      await this.#client.signIn(handleOrDid, { state: currentDocUrl });
+      // The rest will be handled in handleAuthCallback when the user returns
+    } catch (error) {
+      console.error('ATProto login failed:', error);
+      throw error;
+    }
+  }
 
-      // No need to manually restore the account URL as it's handled by the state parameter
-      const agent = new Agent(session);
-      const profile = await agent.getProfile({ actor: session.did });
+  async handleAuthCallback(state?: string): Promise<void> {
+    try {
+      // Get the user's profile
+      const agent = new Agent(this.#session);
+      const profile = await agent.getProfile({ actor: this.#session.did });
 
       // Update account with ATProto credentials
       this.#handle.change((account) => {
-        account.atprotoDid = session.did;
+        account.atprotoDid = this.#session.did;
         account.atprotoHandle = profile.data.handle;
       });
 
@@ -210,10 +226,19 @@ class Account extends EventEmitter<AccountEvents> {
         };
       });
 
+      // Connect to the PSS (Personal Sync Server)
       await this.connectToPSS();
+
+      if (state) {
+        const docUrl = `#${state}`
+        window.location.href = "/" + docUrl;
+      } else {
+        window.location.href = '/';
+      }
     } catch (error) {
-      console.error('ATProto login failed:', error);
-      throw error;
+      console.error('Failed to handle auth callback:', error);
+      // Redirect to main app with error
+      window.location.href = '/';
     }
   }
 
@@ -308,25 +333,18 @@ class Account extends EventEmitter<AccountEvents> {
       const content = doc.content.replace(/^#\s+.*(\r?\n|\r|$)/, '').trim();
 
       const agent = new Agent(this.#session);
-      const entryCreate = {
-        $type: 'com.atproto.repo.applyWrites#create',
+      await agent.com.atproto.repo.putRecord({
+        repo: this.#session.did,
         collection: 'com.whtwnd.blog.entry',
         rkey: doc.publishedId,
-        value: {
-          content: doc.content,
+        record: {
+          content: content,
           title: markdownTitle,
           createdAt: new Date().toISOString(),
           visibility: "public",
+          theme: "github-light",
         },
-      }
-
-      let writes = [entryCreate as any];
-
-      await agent.com.atproto.repo.applyWrites({
-        repo: this.#session.did,
-        writes,
       });
-      // TODO: update local docs to mark as published
     } catch (error) {
       console.error('Failed to publish to PDS', error);
       throw error;

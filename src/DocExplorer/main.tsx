@@ -149,8 +149,8 @@ window.Automerge = Automerge;
 // @ts-expect-error - adding property to window
 window.repo = repo;
 
+
 // Unlike other uses of mount, here we don't pass any doc URL.
 // That's because DocExplorer internally expects to manage the URL hash itself.
 // todo: with the new url format mount doesn't work anymore in trail runner, because we take over the url
-
 mount(document.getElementById("root"), {});
