@@ -15,8 +15,7 @@ const SYNC_SERVER_URL =
 const repo = new Repo({
   network: [
     new BroadcastChannelNetworkAdapter(),
-    // TODO: re-enable this when we have a sync server
-    // new BrowserWebSocketClientAdapter(SYNC_SERVER_URL),
+    new BrowserWebSocketClientAdapter(SYNC_SERVER_URL),
   ],
   storage: new IndexedDBStorageAdapter(),
 });
