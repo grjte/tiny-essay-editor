@@ -94,15 +94,15 @@ export const Topbar: React.FC<TopbarProps> = ({
 
   const handlePublishToPDS = useCallback(async () => {
     if (!isAtProtoConnected || !account) {
-      // Open AccountPicker to Bluesky tab
-      const accountPicker = document.querySelector('[data-testid="account-picker-trigger"]');
-      if (accountPicker) {
-        (accountPicker as HTMLElement).click();
-        // Set tab to ATProto
-        const atprotoTab = document.querySelector('[data-value="atProto"]');
-        if (atprotoTab) {
-          (atprotoTab as HTMLElement).click();
-        }
+      const trigger = document.querySelector('[data-testid="account-picker-trigger"]');
+      if (trigger) {
+        (trigger as HTMLElement).click();
+        setTimeout(() => {
+          const atprotoTab = document.querySelector('[data-testid="account-picker-atproto-tab"]');
+          if (atprotoTab) {
+            (atprotoTab as HTMLElement).click();
+          }
+        }, 100);
       }
       return;
     }
