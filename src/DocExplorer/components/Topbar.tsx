@@ -146,7 +146,7 @@ export const Topbar: React.FC<TopbarProps> = ({
         {selectedDatatypeMetadata && (
           <selectedDatatypeMetadata.icon className="inline mr-1" size={14} />
         )}
-        {selectedDocName}
+        {selectedDocName}{(selectedDoc as MarkdownDoc)?.published ? " (published)" : ""}
       </div>
       <div className="ml-3 mt-[-2px]">
         {isValidAutomergeUrl(selectedDocUrl) && (

@@ -338,7 +338,7 @@ class Account extends EventEmitter<AccountEvents> {
         collection: 'com.whtwnd.blog.entry',
         rkey: doc.publishedId,
         record: {
-          content: content,
+          content,
           title: markdownTitle,
           createdAt: new Date().toISOString(),
           visibility: "public",
