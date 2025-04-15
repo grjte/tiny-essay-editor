@@ -15,6 +15,7 @@ import { SyncIndicator } from "./SyncIndicator";
 import { AccountPicker } from "./AccountPicker";
 import { saveFile } from "../utils";
 import { DocLink, DocLinkWithFolderPath, FolderDoc } from "@/folders/datatype";
+import { TID } from '@atproto/common-web'
 
 import {
   DropdownMenu,
@@ -112,9 +113,16 @@ export const Topbar: React.FC<TopbarProps> = ({
       }
 
       const doc = selectedDoc as MarkdownDoc;
+      const publishedId = doc.publishedId || TID.nextStr();
       await account.publishToPDS(selectedDocHandle.url, {
         content: doc.content,
-        title: selectedDocName
+        title: selectedDocName,
+        publishedId
+      });
+
+      selectedDocHandle.change((doc: MarkdownDoc) => {
+        doc.published = true;
+        doc.publishedId = publishedId;
       });
 
       alert("Successfully published to Bluesky!");

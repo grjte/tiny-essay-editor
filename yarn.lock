@@ -120,6 +120,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@atproto/common-web@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@atproto/common-web@npm:0.4.1"
+  dependencies:
+    graphemer: ^1.4.0
+    multiformats: ^9.9.0
+    uint8arrays: 3.0.0
+    zod: ^3.23.8
+  checksum: 3deab2d4586e1ed7e8fe8268c3fc493f5b0375da81aceccc15bdba0d8366b65751a1be00cd85726cc2af92273f47b1715cfe06a97d5602898ec3f1b5975fc2d8
+  languageName: node
+  linkType: hard
+
 "@atproto/did@npm:0.1.5":
   version: 0.1.5
   resolution: "@atproto/did@npm:0.1.5"
@@ -5638,6 +5650,7 @@ __metadata:
   resolution: "groundmist-essay-editor@workspace:."
   dependencies:
     "@atproto/api": ^0.14.16
+    "@atproto/common-web": ^0.4.1
     "@atproto/oauth-client-browser": ^0.3.12
     "@automerge/automerge": ^2.1.9
     "@automerge/automerge-codemirror": ^0.0.11
