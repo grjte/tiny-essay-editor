@@ -1,6 +1,12 @@
 # groundmist essay editor
 
-This is a simple collaborative Markdown editor built in React, with inline format preview and inline commenting, based on the Ink & Switch "tiny essay editor". This fork enables publishing essays to a public PDS on atproto.
+This is a simple collaborative Markdown editor built in React, with inline format preview and inline commenting, based on the Ink & Switch "tiny essay editor". This fork makes minimal modifications to enable publishing essays to a public PDS on atproto.
+
+The forked code repository *does not have a license file*. The implementation is reused and modified here with grateful permission from the [Ink & Switch](https://github.com/inkandswitch) team.
+
+The rest of this README comes from Ink & Switch's original documentation.
+
+-----
 
 It's built on [automerge](https://github.com/automerge/automerge) and [automerge-repo](https://github.com/automerge/automerge-repo) for CRDT-based storage and sync. It uses [Codemirror](https://codemirror.net/) for markdown editing UI, and [automerge-codemirror](https://github.com/automerge/automerge-codemirror) to connect to Codemirror.
 

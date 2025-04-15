@@ -342,7 +342,7 @@ class Account extends EventEmitter<AccountEvents> {
           title: markdownTitle,
           createdAt: new Date().toISOString(),
           visibility: "public",
-          theme: "github-light",
+          theme: "github-light"
         },
       });
     } catch (error) {
