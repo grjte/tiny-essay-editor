@@ -243,8 +243,10 @@ class Account extends EventEmitter<AccountEvents> {
               rootDocUrl: this.#handle.url
             }),
           });
+          if (!pssResponse.ok) {
+            throw new Error("Failed to connect to PSS");
+          }
           const data = await pssResponse.json();
-          console.log('Server response:', data);
 
           if (data.rootDocUrl !== this.#handle.url) {
             const accountDoc = await this.#handle.doc();
