@@ -3,7 +3,7 @@
     "client_name": "Groundmist Editor",
     "client_uri": "https://editor.groundmist.xyz",
     "redirect_uris": [
-        "https://editor.groundmist.xyz"
+        "https://editor.groundmist.xyz/oauth/callback"
     ],
     "scope": "atproto transition:generic",
     "grant_types": [

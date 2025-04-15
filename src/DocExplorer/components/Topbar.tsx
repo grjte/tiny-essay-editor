@@ -109,7 +109,7 @@ export const Topbar: React.FC<TopbarProps> = ({
 
     try {
       if (selectedDocType !== "essay") {
-        throw new Error("Only essays can be published to Bluesky");
+        throw new Error("Only essays can be published to WhiteWind");
       }
 
       const doc = selectedDoc as MarkdownDoc;
@@ -125,10 +125,10 @@ export const Topbar: React.FC<TopbarProps> = ({
         doc.publishedId = publishedId;
       });
 
-      alert("Successfully published to Bluesky!");
+      alert("Successfully published to WhiteWind!");
     } catch (error) {
       console.error("Failed to publish:", error);
-      alert("Failed to publish to Bluesky. Please try again.");
+      alert("Failed to publish to WhiteWind. Please try again.");
     }
   }, [isAtProtoConnected, account, selectedDoc, selectedDocType, selectedDocName, selectedDocHandle]);
 
