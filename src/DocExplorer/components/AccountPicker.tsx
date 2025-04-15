@@ -57,7 +57,7 @@ export const AccountPicker = ({
   const [name, setName] = useState<string>("");
   const [avatar, setAvatar] = useState<File>();
   const [activeTab, setActiveTab] = useState<AccountPickerTab>(
-    AccountPickerTab.SignUp
+    AccountPickerTab.ATProto
   );
   const [showAccountUrl, setShowAccountUrl] = useState(false);
   const [isCopyTooltipOpen, setIsCopyTooltipOpen] = useState(false);
@@ -151,14 +151,14 @@ export const AccountPicker = ({
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger data-testid="account-picker-trigger">
         <div className="flex flex-row  text-sm text-gray-600 hover:text-gray-800 ">
           <ContactAvatar url={currentAccount?.contactHandle.url} size={size} />
           {showName && isLoggedIn && <div className="ml-2 py-2">{name}</div>}
           {showName && !isLoggedIn && <div className="ml-2 py-2">Sign in</div>}
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" data-testid="account-picker-dialog">
         <DialogHeader className="items-center">
           {isLoggedIn ? (
             <div className="flex flex-col items-center gap-2">
@@ -177,12 +177,8 @@ export const AccountPicker = ({
           ) : activeTab === "signUp" ? (
             <ContactAvatar name={name} avatar={avatar} size={"lg"} />
           ) : activeTab === "atProto" ? (
-            <div className="p-4">
-              <img
-                src="/bluesky-logo.svg"
-                alt="Bluesky"
-                className="w-16 h-16"
-              />
+            <div className="p-4 flex flex-row items-center gap-2 text-blue-500">
+              <svg className="w-5 h-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 568 501"><title>Bluesky butterfly logo</title><path fill="currentColor" d="M123.121 33.664C188.241 82.553 258.281 181.68 284 234.873c25.719-53.192 95.759-152.32 160.879-201.21C491.866-1.611 568-28.906 568 57.947c0 17.346-9.945 145.713-15.778 166.555-20.275 72.453-94.155 90.933-159.875 79.748C507.222 323.8 536.444 388.56 473.333 453.32c-119.86 122.992-172.272-30.859-185.702-70.281-2.462-7.227-3.614-10.608-3.631-7.733-.017-2.875-1.169.506-3.631 7.733-13.43 39.422-65.842 193.273-185.702 70.281-63.111-64.76-33.89-129.52 80.986-149.071-65.72 11.185-139.6-7.295-159.875-79.748C9.945 203.659 0 75.291 0 57.946 0-28.906 76.135-1.612 123.121 33.664Z"></path></svg> Bluesky
             </div>
           ) : (
             <ContactAvatar url={accountToLogin?.contactUrl} size="lg" />
@@ -191,7 +187,7 @@ export const AccountPicker = ({
 
         {!isLoggedIn && (
           <Tabs
-            defaultValue={AccountPickerTab.SignUp}
+            defaultValue={AccountPickerTab.ATProto}
             className="w-full"
             onValueChange={(tab) => setActiveTab(tab as AccountPickerTab)}
             value={activeTab}
@@ -199,7 +195,9 @@ export const AccountPicker = ({
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value={AccountPickerTab.SignUp}>Sign up</TabsTrigger>
               <TabsTrigger value={AccountPickerTab.LogIn}>Log in</TabsTrigger>
-              <TabsTrigger value={AccountPickerTab.ATProto}>Bluesky</TabsTrigger>
+              <TabsTrigger value={AccountPickerTab.ATProto} data-testid="account-picker-atproto-tab">
+                Bluesky
+              </TabsTrigger>
             </TabsList>
             <TabsContent value={AccountPickerTab.SignUp}>
               <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
@@ -275,7 +273,7 @@ export const AccountPicker = ({
                 />
 
                 <p className="text-gray-500 text-justify pb-2 text-sm mt-4">
-                  Connect with your Bluesky account to sync your profile and enable cross-device collaboration.
+                  Connect with your Bluesky account to publish documents to your PDS.
                 </p>
               </form>
             </TabsContent>
