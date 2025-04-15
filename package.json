@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@atproto/api": "^0.14.16",
+    "@atproto/common-web": "^0.4.1",
     "@atproto/oauth-client-browser": "^0.3.12",
     "@automerge/automerge": "^2.1.9",
     "@automerge/automerge-codemirror": "^0.0.11",

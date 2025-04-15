@@ -38,4 +38,6 @@ export type MarkdownDoc = HasAssets & {
   content: string;
   commentThreads: { [key: string]: CommentThread };
   users: User[];
+  published: boolean;
+  publishedId?: string;
 };

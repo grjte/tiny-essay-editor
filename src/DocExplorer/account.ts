@@ -15,7 +15,7 @@ import { ChangeFn } from "@automerge/automerge/next";
 import { FolderDoc, FolderDocWithChildren } from "../folders/datatype";
 import { useFolderDocWithChildren } from "../folders/useFolderDocWithChildren";
 
-import { Agent } from "@atproto/api";
+import { Agent, } from "@atproto/api";
 import { BrowserOAuthClient, OAuthSession } from "@atproto/oauth-client-browser";
 import { BrowserWebSocketClientAdapter } from "@automerge/automerge-repo-network-websocket";
 
@@ -292,24 +292,29 @@ class Account extends EventEmitter<AccountEvents> {
     }
   }
 
-  async publishToPDS(docUrl: AutomergeUrl, doc: { content: string, title: string }) {
+  async publishToPDS(docUrl: AutomergeUrl, doc: { content: string, title: string, publishedId: string }) {
     if (!this.#session) {
       throw new Error("Not connected to Bluesky");
     }
 
     try {
 
+      // Extract markdown title if it exists
+      const title = doc.content.match(/^#\s+(.*?)(\r?\n|\r|$)/);
+      const markdownTitle = title ? title[1].trim() : doc.title;
+      // Strip the title from content if it exists
+      const content = doc.content.replace(/^#\s+.*(\r?\n|\r|$)/, '').trim();
+
       const agent = new Agent(this.#session);
       const entryCreate = {
         $type: 'com.atproto.repo.applyWrites#create',
-        // TODO: create lexicon for collection
-        collection: 'xyz.groundmist.notebook.essay',
-        // TODO: use a better rkey
-        rkey: docUrl,
+        collection: 'com.whtwnd.blog.entry',
+        rkey: doc.publishedId,
         value: {
-          text: doc.content,
-          title: doc.title,
+          content: doc.content,
+          title: markdownTitle,
           createdAt: new Date().toISOString(),
+          visibility: "public",
         },
       }
 
